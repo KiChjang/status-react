@@ -35,6 +35,8 @@
               "react-native-background-timer"
               "react-native-fetch-polyfill"
               "react-navigation"
+              "react-navigation-tabs"
+              "react-navigation-stack"
               "react-native-navigation-twopane"
               "hi-base32"
               "functional-red-black-tree"
