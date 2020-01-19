@@ -19,7 +19,7 @@
             [status-im.ui.components.toolbar.view :as toolbar]
             [status-im.ui.screens.chat.message.message :as message]
             [status-im.ui.screens.profile.components.views :as profile.components]
-            [status-im.utils.navigation :as navigation]
+            [status-im.cljs-react-navigation.reagent :as navigation]
             [status-im.ui.components.list-item.views :as list-item]
             [status-im.ui.screens.chat.photos :as photos]
             [status-im.multiaccounts.core :as multiaccounts]

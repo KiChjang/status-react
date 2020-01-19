@@ -1,7 +1,7 @@
 (ns status-im.ui.screens.navigation
   (:require [re-frame.core :as re-frame]
             [status-im.utils.handlers :as handlers]
-            [status-im.utils.navigation :as navigation]
+            [status-im.cljs-react-navigation.reagent :as navigation]
             [taoensso.timbre :as log]
             [status-im.utils.fx :as fx]))
 

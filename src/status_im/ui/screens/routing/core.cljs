@@ -1,10 +1,10 @@
 (ns status-im.ui.screens.routing.core
   (:require
+   [reagent.core :as reagent]
    [status-im.ui.components.react :as react]
    [status-im.ui.screens.routing.back-actions :as back-actions]
    [status-im.ui.components.styles :as common-styles]
-   [status-im.utils.navigation :as navigation]
-   [cljs-react-navigation.reagent :as nav-reagent]
+   [status-im.cljs-react-navigation.reagent :as nav-reagent]
    [re-frame.core :as re-frame]
    [taoensso.timbre :as log]
    [status-im.utils.platform :as platform]
@@ -21,11 +21,11 @@
    [status-im.ui.components.tabbar.styles :as tabs.styles]
    [status-im.react-native.js-dependencies :as js-dependencies]))
 
-(defonce view-id (reagent.core/atom nil))
+(defonce view-id (reagent/atom nil))
 (defonce back-button-listener (atom nil))
 
 (defn navigation-events [current-view-id modal? screen-focused?]
-  [:> navigation/navigation-events
+  [:> nav-reagent/navigation-events
    {:on-will-focus
     (fn [payload]
       (reset! screen-focused? true)
@@ -111,7 +111,7 @@
 (defn new-get-state-for-action [default-get-state-for-action]
   (fn [action state]
     (let [event (get back-actions/back-actions @view-id)]
-      (when (and (= (.-type action) (.-BACK navigation/navigation-actions)) event (not= :default event))
+      (when (and (= (.-type action) (.-BACK nav-reagent/navigation-actions)) event (not= :default event))
         (re-frame/dispatch [event]))
       (default-get-state-for-action action state))))
 
@@ -141,7 +141,7 @@
     res))
 
 (defn twopane-navigator [routes config]
-  (navigation/twopane-navigator
+  (nav-reagent/twopane-navigator
    routes
    (merge {:headerMode        "none"
            :cardStyle         {:backgroundColor :white}
@@ -166,44 +166,45 @@
    (prepare-config config)))
 
 (defn tab-navigator [routes config]
-  (nav-reagent/tab-navigator
+  (nav-reagent/bottom-tab-navigator
    routes
    (assoc (prepare-config config) :lazy false)))
 
 (declare stack-screens)
 
-(defn build-screen [navigator screen]
+(defn build-screen
   "Builds screen from specified configuration. Currently screen can be
   - keyword, which points to some specific route
   - vector of [:modal :screen-key] type when screen should be wrapped as modal
   - map with `name`, `screens`, `config` keys, where `screens` is a vector
   of children and `config` is `stack-navigator` configuration"
+  [navigator screen]
   (let [[screen-name screen-config]
         (cond (keyword? screen)
               [screen (screens/get-screen screen)]
               (map? screen)
               [(:name screen) screen]
-              :else screen)]
-    (let [res (cond
-                (map? screen-config)
-                (let [{:keys [screens config]} screen-config]
-                  (navigator
-                   (stack-screens navigator screens)
-                   config))
+              :else screen)
+        res (cond
+              (map? screen-config)
+              (let [{:keys [screens config]} screen-config]
+                (navigator
+                 (stack-screens navigator screens)
+                 config))
 
-                (vector? screen-config)
-                (let [[_ screen] screen-config]
-                  (nav-reagent/stack-screen
-                   (wrap-modal screen-name screen)))
+              (vector? screen-config)
+              (let [[_ screen] screen-config]
+                (nav-reagent/stack-screen
+                 (wrap-modal screen-name screen)))
 
-                :else
-                (nav-reagent/stack-screen (wrap screen-name screen-config)))]
+              :else
+              (nav-reagent/stack-screen (wrap screen-name screen-config)))]
       [screen-name (cond-> {:screen res}
                      (not (get back-actions/back-actions screen-name))
                      (assoc :navigationOptions {:gesturesEnabled false})
                      (:navigation screen-config)
                      (assoc :navigationOptions
-                            (:navigation screen-config)))])))
+                            (:navigation screen-config)))]))
 
 (defn stack-screens [navigator screens-map]
   (->> screens-map
@@ -214,12 +215,9 @@
   [nav]
   [tabbar/tabbar nav view-id])
 
-(defn app-container [navigator]
-  (.createAppContainer js-dependencies/react-navigation navigator))
-
 (defn get-main-component [view-id two-pane?]
   (log/debug :component view-id)
-  (app-container
+  (nav-reagent/create-app-container
    (switch-navigator
     (into {}
           [(build-screen stack-navigator (intro-login-stack/login-stack view-id))
