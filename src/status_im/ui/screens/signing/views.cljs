@@ -194,8 +194,8 @@
         [separator]])
      [react/view {:style (styles/sheet-icon (case keycard-step
                                               (:connect :signing) colors/blue-transparent-10
-                                              :error colors/red-transparent-10
-                                              :success colors/green-transparent-10))}
+                                              :error              colors/red-transparent-10
+                                              :success            colors/green-transparent-10))}
       (case keycard-step
         :connect
         [icons/icon :main-icons/nfc {:color colors/blue :width 27 :height 21}]
@@ -207,39 +207,60 @@
         [icons/icon :main-icons/check {:color colors/green}])]
      [react/text {:style styles/sheet-title} (i18n/label title)]
      [react/text {:style styles/sheet-subtitle} (i18n/label subtitle)]
-     [button/button {:type :main
-                     :disabled? (= keycard-step :success)
-                     :label-style {:font-size 20}
-                     :style {:align-self :stretch}
+     [button/button {:type            :main
+                     :disabled?       (= keycard-step :success)
+                     :label-style     {:font-size 20}
+                     :style           {:align-self :stretch}
                      :container-style {:height 64}
-                     :label (i18n/label :t/show-transaction-data)
-                     :on-press #(re-frame/dispatch [:navigate-to :keycard-transaction-data])}]
-     [button/button {:type :main
-                     :theme :red
-                     :disabled? (= keycard-step :success)
+                     :label           (i18n/label :t/show-transaction-data)
+                     :on-press        #(re-frame/dispatch [:show-popover {:view :transaction-data}])}]
+     [button/button {:type            :main
+                     :theme           :red
+                     :disabled?       (= keycard-step :success)
                      :container-style {:margin-top 8
-                                       :height 64 :margin-bottom 16}
-                     :style {:align-self :stretch}
-                     :label-style {:font-size 20}
-                     :label (i18n/label :t/decline)
-                     :on-press #(re-frame/dispatch [:signing.ui/cancel-is-pressed])}]]))
+                                       :height     64 :margin-bottom 16}
+                     :style           {:align-self :stretch}
+                     :label-style     {:font-size 20}
+                     :label           (i18n/label :t/decline)
+                     :on-press        #(re-frame/dispatch [:signing.ui/cancel-is-pressed])}]]))
+
+(defn- transaction-data-item [{:keys [label data]}]
+  [react/view
+   [react/text {:style {:font-size     17
+                        :line-height   20
+                        :margin-bottom 8
+                        :color         colors/gray}}
+    label]
+   [react/text {:style {:font-size     17
+                        :line-height   20
+                        :margin-bottom 24}}
+    data]])
 
 (views/defview transaction-data []
-  (views/letsubs [{:keys [formatted-data]} [:signing/sign]]
-    [react/view {:border-radius 16
-                 :padding 24
-                 :background-color colors/white}
-     [react/text {:style {:font-size 17 :font-weight "700"}}
-      (i18n/label :t/transaction-data)]
-     [react/view {:style {:margin-top 24}}
-      [react/text {:style {:font-size 17}} formatted-data]]
-     [separator]
-     [button/button  {:type :main
-                      :label-style {:font-size 20}
-                      :style {:align-self :stretch}
+  (views/letsubs
+   [{:keys [formatted-data]} [:signing/sign]]
+   [react/view {:style {:flex 1}}
+    [react/view {:style {:margin-horizontal 24
+                         :margin-top        24}}
+     [react/text {:style {:font-size   17
+                          :font-weight "700"}}
+      (i18n/label :t/transaction-data)]]
+    [react/scroll-view {:style {:flex               1
+                                :margin-horizontal  8
+                                :padding-horizontal 16
+                                :padding-vertical   10
+                                :margin-vertical    14}}
+     [transaction-data-item {:label "Label"
+                             :data  formatted-data}]]
+    [separator]
+    [react/view {:style {:margin-horizontal 8
+                         :margin-vertical   16}}
+     [button/button  {:type            :main
+                      :label-style     {:font-size 20}
+                      :style           {:margin-horizontal 0}
                       :container-style {:height 64}
-                      :label (i18n/label :t/close)
-                      :on-press #(re-frame/dispatch [:navigate-back])}]]))
+                      :label           (i18n/label :t/close)
+                      :on-press        #(re-frame/dispatch [:hide-popover])}]]]))
 
 (views/defview password-view [{:keys [type error in-progress? enabled?] :as sign}]
   (views/letsubs [phrase [:signing/phrase]]

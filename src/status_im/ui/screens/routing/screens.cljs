@@ -111,7 +111,6 @@
    :keycard-recovery-success                         keycard.recovery/success
    :keycard-recovery-no-key                          keycard.recovery/no-key
    :keycard-recovery-pin                             keycard.recovery/pin
-   :keycard-transaction-data                         [:modal signing/transaction-data]
    :keycard-blank                                    keycard/blank
    :keycard-wrong                                    keycard/wrong
    :keycard-unpaired                                 keycard/unpaired
