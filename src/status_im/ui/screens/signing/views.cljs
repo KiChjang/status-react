@@ -161,8 +161,13 @@
      [react/view {:align-items :center :margin-top 16 :margin-bottom 40}
       [sign-with-keycard-button nil nil]])])
 
-(defn signature-request [{:keys [error keycard-step in-progress? enabled?] :as sign}]
+(defn signature-request [{:keys [error formatted-data
+                                 fiat-amount fiat-currency
+                                 keycard-step
+                                 in-progress? enabled?] :as sign}]
   (let [_ (log/info "#signature-req" sign)
+        message (:message formatted-data)
+        _ (log/info "# and:" (and (:amount message) (:currency message)))
         title (case keycard-step
                 :connect :t/looking-for-cards
                 :signing :t/processing
@@ -173,10 +178,20 @@
                    :signing :t/try-keeping-the-card-still
                    :error :t/tap-card-again
                    :success :t/transaction-signed)]
-    [react/view (assoc styles/message :padding 16 :align-items :center)
-     [react/view {:style {:align-self :flex-start :margin-bottom 24}}
+    [react/view (assoc styles/message :padding-vertical 16 :align-items :center)
+     [react/view {:style {:align-self :flex-start :padding-left 16 :margin-bottom 24}}
       [react/text {:style {:font-size 17 :font-weight "700"}}
        (i18n/label :t/confirmation-request)]]
+     (when (and (:amount message) (:currency message))
+       [react/view {:style {:margin-bottom 24 :align-self :stretch}}
+        [react/nested-text {:style {:font-weight "500" :font-size 44
+                                    :text-align :center}}
+         (str (:amount message) " ")
+         [{:style {:color colors/gray}} (:currency message)]]
+        [react/text {:style {:font-size 19 :text-align :center
+                             :margin-bottom 16}}
+         (str fiat-amount " " fiat-currency)]
+        [separator]])
      [react/view {:style (styles/sheet-icon (case keycard-step
                                               (:connect :signing) colors/blue-transparent-10
                                               :error colors/red-transparent-10
