@@ -47,4 +47,4 @@
 
 (def add-new
   {:content        add-new-view
-   :content-height (if config/group-chat-enabled? 280 220)})
+   :content-height (if config/group-chat-enabled? 256 192)})
