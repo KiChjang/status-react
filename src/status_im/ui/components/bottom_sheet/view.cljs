@@ -29,8 +29,7 @@
                         :useNativeDriver true})])
    (when (fn? callback) callback)))
 
-(defn animate-sign-panel
-  [opacity-value bottom-value]
+(defn animate-panel-open [opacity-value bottom-value]
   (animate {:bottom            bottom-value
             :new-bottom-value  0
             :opacity           opacity-value
@@ -96,10 +95,10 @@
   [{:keys [opacity-value bottom-value]}]
   (reagent.core/create-class
    {:component-did-mount
-    #(animate-sign-panel opacity-value bottom-value)
+    #(animate-panel-open opacity-value bottom-value)
     :reagent-render
-    (fn [{:keys [opacity-value bottom-value
-                 height content on-cancel]
+    (fn [{:keys [opacity-value bottom-value height
+                 content on-cancel disable-drag?]
           :or   {on-cancel #(re-frame/dispatch [:bottom-sheet/hide])}
           :as   opts}]
       [react/keyboard-avoiding-view {:style styles/container}
@@ -108,12 +107,11 @@
          :style    styles/container}
 
         [react/animated-view (styles/shadow opacity-value)]]
-       [react/animated-view
-        {:style (styles/content-container height bottom-value)}
-        [react/view
-         (merge
-          (pan-handlers (swipe-pan-responder opts))
-          {:style  styles/content-header})
+       [react/animated-view (merge
+                             {:style (styles/content-container height bottom-value)}
+                             (when-not disable-drag?
+                               (pan-handlers (swipe-pan-responder opts))))
+        [react/view {:style styles/content-header}
          [react/view styles/handle]]
         [react/view {:style {:flex   1
                              :height height}}
