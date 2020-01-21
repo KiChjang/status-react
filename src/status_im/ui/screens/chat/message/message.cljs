@@ -9,7 +9,6 @@
             [status-im.ui.components.colors :as colors]
             [status-im.utils.security :as security]
             [status-im.ui.components.icons.vector-icons :as vector-icons]
-            [status-im.ui.components.list-selection :as list-selection]
             [status-im.ui.components.popup-menu.views :as desktop.pop-up]
             [status-im.ui.components.chat-icon.screen :as chat-icon]
             [status-im.ui.components.react :as react]
@@ -520,10 +519,6 @@
    [react/view (style/delivery-status outgoing)
     [message-delivery-status message]]])
 
-(defn open-chat-context-menu
-  [{:keys [message-id content] :as message}]
-  (list-selection/chat-message message-id (:text content) (i18n/label :t/message)))
-
 (defn chat-message
   [{:keys [outgoing group-chat modal? current-public-key content-type content] :as message}]
   (let [sticker (:sticker content)]
@@ -531,17 +526,21 @@
      [react/touchable-highlight
       {:on-press      (fn [arg]
                         (if (and platform/desktop? (= "right" (.-button (.-nativeEvent arg))))
-                          (open-chat-context-menu message)
+                          (re-frame/dispatch [:bottom-sheet/show-sheet
+                                              {:content (sheets/message-long-press message)
+                                               :height  192}])
                           (do
                             (when (and (= content-type constants/content-type-sticker) (:pack sticker))
                               (re-frame/dispatch [:stickers/open-sticker-pack (:pack sticker)]))
-                            (re-frame/dispatch [:chat.ui/set-chat-ui-props {:messages-focused? true
+                            (re-frame/dispatch [:chat.ui/set-chat-ui-props {:messages-focused?  true
                                                                             :input-bottom-sheet nil}])
                             (when-not platform/desktop?
                               (react/dismiss-keyboard!)))))
        :on-long-press #(when (or (= content-type constants/content-type-text)
                                  (= content-type constants/content-type-emoji))
-                         (open-chat-context-menu message))}
+                         (re-frame/dispatch [:bottom-sheet/show-sheet
+                                             {:content (sheets/message-long-press message)
+                                              :height  192}]))}
       [react/view {:accessibility-label :chat-item}
        (let [incoming-group (and group-chat (not outgoing))]
          [message-content message-body (merge message
