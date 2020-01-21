@@ -79,7 +79,7 @@
       {:theme    :action-destructive
        :title    :t/delete-chat
        :icon     :main-icons/delete
-       :on-press #(hide-sheet-and-dispatch [:chat.ui/remove-chat-pressed chat-id])}]]))
+       :on-press #(hide-sheet-and-dispatch [:group-chats.ui/remove-chat-pressed chat-id])}]]))
 
 (defn group-chat-actions [{:keys [chat-id contact group-chat chat-name color online]}]
   [react/view
@@ -105,7 +105,7 @@
     {:theme    :action-destructive
      :title    :t/delete-chat
      :icon     :main-icons/delete
-     :on-press nil}]])
+     :on-press #(hide-sheet-and-dispatch [:group-chats.ui/remove-chat-pressed chat-id])}]])
 
 (defn actions [{:keys [public? group-chat]
                 :as current-chat}]
