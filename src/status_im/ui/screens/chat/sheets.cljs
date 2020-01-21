@@ -41,7 +41,7 @@
     {:theme    :action
      :title    :t/clear-history
      :icon     :main-icons/close
-     :on-press #(hide-sheet-and-dispatch [:chat.ui/clear-history-pressed])}]
+     :on-press #(hide-sheet-and-dispatch [:chat.ui/clear-history-pressed chat-id])}]
    [list-item/list-item
     {:theme    :action
      :title    :t/fetch-history
@@ -69,7 +69,7 @@
       {:theme    :action
        :title    :t/clear-history
        :icon     :main-icons/close
-       :on-press #(hide-sheet-and-dispatch [:chat.ui/clear-history-pressed])}]
+       :on-press #(hide-sheet-and-dispatch [:chat.ui/clear-history-pressed chat-id])}]
      [list-item/list-item
       {:theme    :action
        :title    :t/fetch-history
@@ -95,7 +95,7 @@
     {:theme    :action
      :title    :t/clear-history
      :icon     :main-icons/close
-     :on-press #(hide-sheet-and-dispatch [:chat.ui/clear-history-pressed])}]
+     :on-press #(hide-sheet-and-dispatch [:chat.ui/clear-history-pressed chat-id])}]
    [list-item/list-item
     {:theme    :action
      :title    :t/fetch-history
