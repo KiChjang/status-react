@@ -294,6 +294,7 @@
   {:events [:browser.dapp/transaction-on-result]}
   [{{:keys [webview-bridge]} :db} message-id id result]
   ;;TODO check and test id
+  (log/info "#dapp-complete-transaction" result)
   {:browser/send-to-bridge
    {:message {:type      constants/web3-send-async-callback
               :messageId message-id
@@ -320,10 +321,16 @@
 
 (fx/defn web3-send-async
   [cofx {:keys [method params id] :as payload} message-id]
-  (let [message?      (constants/web3-sign-message? method)
+  (let [_ (log/info "#web3-send-async payload:" payload)
+        _ (log/info "#web3-send-async method" method)
+        message?      (constants/web3-sign-message? method)
+        _ (log/info "#web3-send-async message?" message?)
         dapps-address (get-in cofx [:db :multiaccount :dapps-address])]
     (if (or message? (= constants/web3-send-transaction method))
-      (let [[address data] (when message? (normalize-sign-message-params params))]
+      (let [[address data] (when message? (normalize-sign-message-params params))
+            _ (log/info "#web3-send-async params type" (count params) (string? (first params)) (string? (second params)))
+            _ (log/info "#web3-send-async address" address)
+            _ (log/info "#web3-send-async data" data)]
         (when (or (not message?) (and address data))
           (signing/sign cofx (merge
                               (if message?
@@ -347,16 +354,6 @@
                                                   :messageId message-id
                                                   :error     %1
                                                   :result    %2}])]}))))
-
-(fx/defn testSignTypedData
-  {:events [:browser.ui/test-sign-typed-data]}
-  [cofx]
-  (log/info "#testSignTypedData")
-  (web3-send-async cofx {:method "keycard_signTypedData"
-                         :params ["0x111d500fe567696D0224A7292D47AF11e8A4bCB4"
-                                  "{ \"domain\": { \"chainId\": 1, \"name\": \"Ether Mail\", \"verifyingContract\": \"0xCcCCccccCCCCcCCCCCCcCcCccCcCCCcCcccccccC\", \"version\": \"1\" }, \"message\": { \"contents\": \"Hello, Bob!\", \"amount\": \"123.04\", \"currency\": \"SNT\", \"from\": { \"name\": \"Cow\", \"wallet\": \"0xCD2a3d9F938E13CD947Ec05AbC7FE734Df8DD826\" }, \"to\": { \"name\": \"Bob\", \"wallet\": \"0xbBbBBBBbbBBBbbbBbbBbbbbBBbBbbbbBbBbbBBbB\" } }, \"primaryType\": \"Mail\", \"types\": { \"EIP712Domain\": [ { \"name\": \"name\", \"type\": \"string\" }, { \"name\": \"version\", \"type\": \"string\" }, { \"name\": \"chainId\", \"type\": \"uint256\" }, { \"name\": \"verifyingContract\", \"type\": \"address\" } ], \"Mail\": [ { \"name\": \"from\", \"type\": \"Person\" }, { \"name\": \"to\", \"type\": \"Person\" }, { \"name\": \"contents\", \"type\": \"string\" }, { \"name\": \"amount\", \"type\": \"string\" }, { \"name\": \"currency\", \"type\": \"string\" } ], \"Person\": [ { \"name\": \"name\", \"type\": \"string\" }, { \"name\": \"wallet\", \"type\": \"address\" } ] } }"]
-                         :id "jkll"}
-                   "abcdefgh"))
 
 (fx/defn web3-send-async-read-only
   [{:keys [db] :as cofx} dapp-name {:keys [method] :as payload} message-id]

@@ -13,7 +13,6 @@
             [status-im.ui.components.icons.vector-icons :as icons]
             [status-im.ui.components.text-input.view :as text-input]
             [status-im.i18n :as i18n]
-            [taoensso.timbre :as log]
             [status-im.utils.security :as security]
             [status-im.ui.screens.signing.sheets :as sheets]
             [status-im.ethereum.tokens :as tokens]
@@ -165,9 +164,7 @@
                                  fiat-amount fiat-currency
                                  keycard-step
                                  in-progress? enabled?] :as sign} small-screen?]
-  (let [_ (log/info "#signature-req" sign)
-        message (:message formatted-data)
-        _ (log/info "# and:" (and (:amount message) (:currency message)))
+  (let [message (:message formatted-data)
         title (case keycard-step
                 :connect :t/looking-for-cards
                 :signing :t/processing

@@ -180,7 +180,6 @@
 
 ;;signing
 (reg-root-key-sub :signing/tx :signing/tx)
-(reg-root-key-sub :signing/sign :signing/sign)
 (reg-root-key-sub :signing/edit-fee :signing/edit-fee)
 
 ;;intro-wizard
@@ -2046,15 +2045,11 @@
      (if (= :pinless (:type sign))
        (let [message (get-in sign [:formatted-data :message])]
          (if (and (:amount message) (:currency message))
-           (do
-             (log/info "#signing/sign sub:" (money/fiat-amount-value (:amount message)
-                                                                     (keyword (:currency message))
-                                                                     :USD (:prices db)))
-             (assoc sign :fiat-amount
-                    (money/fiat-amount-value (:amount message)
-                                             (:currency message)
-                                             :USD (:prices db))
-                    :fiat-currency "USD"))
+           (assoc sign :fiat-amount
+                  (money/fiat-amount-value (:amount message)
+                                           (:currency message)
+                                           :USD (:prices db))
+                  :fiat-currency "USD")
            sign))
        sign))))
 

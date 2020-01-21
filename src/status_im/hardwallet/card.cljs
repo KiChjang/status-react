@@ -71,7 +71,7 @@
         (catch #(re-frame/dispatch [:hardwallet.callback/on-install-applet-error (error-object->map %)])))))
 
 (defn install-cash-applet []
-  (log/debug "[keycard] install-applet")
+  (log/debug "[keycard] install-cash-applet")
   (when config/hardwallet-enabled?
     (.. keycard
         installCashApplet
