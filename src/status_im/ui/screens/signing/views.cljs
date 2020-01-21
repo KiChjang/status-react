@@ -164,7 +164,7 @@
 (defn signature-request [{:keys [error formatted-data
                                  fiat-amount fiat-currency
                                  keycard-step
-                                 in-progress? enabled?] :as sign}]
+                                 in-progress? enabled?] :as sign} small-screen?]
   (let [_ (log/info "#signature-req" sign)
         message (:message formatted-data)
         _ (log/info "# and:" (and (:amount message) (:currency message)))
@@ -180,11 +180,11 @@
                    :success :t/transaction-signed)]
     [react/view (assoc styles/message :padding-vertical 16 :align-items :center)
      [react/view {:style {:align-self :flex-start :padding-left 16 :margin-bottom 24}}
-      [react/text {:style {:font-size 17 :font-weight "700"}}
+      [react/text {:style {:font-size (if small-screen? 15 17) :font-weight "700"}}
        (i18n/label :t/confirmation-request)]]
      (when (and (:amount message) (:currency message))
        [react/view {:style {:margin-bottom 24 :align-self :stretch}}
-        [react/nested-text {:style {:font-weight "500" :font-size 44
+        [react/nested-text {:style {:font-weight "500" :font-size (if small-screen? 34 44)
                                     :text-align :center}}
          (str (:amount message) " ")
          [{:style {:color colors/gray}} (:currency message)]]
@@ -205,13 +205,13 @@
         [icons/icon :main-icons/close {:color colors/red}]
         :success
         [icons/icon :main-icons/check {:color colors/green}])]
-     [react/text {:style styles/sheet-title} (i18n/label title)]
-     [react/text {:style styles/sheet-subtitle} (i18n/label subtitle)]
+     [react/text {:style (styles/sheet-title small-screen?)} (i18n/label title)]
+     [react/text {:style (styles/sheet-subtitle small-screen?)} (i18n/label subtitle)]
      [button/button {:type            :main
                      :disabled?       (= keycard-step :success)
-                     :label-style     {:font-size 20}
+                     :label-style     {:font-size (if small-screen? 18 20)}
                      :style           {:align-self :stretch}
-                     :container-style {:height 64}
+                     :container-style {:height (if small-screen? 52 64)}
                      :label           (i18n/label :t/show-transaction-data)
                      :on-press        #(re-frame/dispatch [:show-popover {:view :transaction-data}])}]
      [button/button {:type            :main
@@ -238,29 +238,29 @@
 
 (views/defview transaction-data []
   (views/letsubs
-   [{:keys [formatted-data]} [:signing/sign]]
-   [react/view {:style {:flex 1}}
-    [react/view {:style {:margin-horizontal 24
-                         :margin-top        24}}
-     [react/text {:style {:font-size   17
-                          :font-weight "700"}}
-      (i18n/label :t/transaction-data)]]
-    [react/scroll-view {:style {:flex               1
-                                :margin-horizontal  8
-                                :padding-horizontal 16
-                                :padding-vertical   10
-                                :margin-vertical    14}}
-     [transaction-data-item {:label "Label"
-                             :data  formatted-data}]]
-    [separator]
-    [react/view {:style {:margin-horizontal 8
-                         :margin-vertical   16}}
-     [button/button  {:type            :main
-                      :label-style     {:font-size 20}
-                      :style           {:margin-horizontal 0}
-                      :container-style {:height 64}
-                      :label           (i18n/label :t/close)
-                      :on-press        #(re-frame/dispatch [:hide-popover])}]]]))
+    [{:keys [formatted-data]} [:signing/sign]]
+    [react/view {:style {:flex 1}}
+     [react/view {:style {:margin-horizontal 24
+                          :margin-top        24}}
+      [react/text {:style {:font-size   17
+                           :font-weight "700"}}
+       (i18n/label :t/transaction-data)]]
+     [react/scroll-view {:style {:flex               1
+                                 :margin-horizontal  8
+                                 :padding-horizontal 16
+                                 :padding-vertical   10
+                                 :margin-vertical    14}}
+      [transaction-data-item {:label "Label"
+                              :data  formatted-data}]]
+     [separator]
+     [react/view {:style {:margin-horizontal 8
+                          :margin-vertical   16}}
+      [button/button  {:type            :main
+                       :label-style     {:font-size 20}
+                       :style           {:margin-horizontal 0}
+                       :container-style {:height 64}
+                       :label           (i18n/label :t/close)
+                       :on-press        #(re-frame/dispatch [:hide-popover])}]]]))
 
 (views/defview password-view [{:keys [type error in-progress? enabled?] :as sign}]
   (views/letsubs [phrase [:signing/phrase]]
@@ -289,9 +289,10 @@
       [react/view])))
 
 (views/defview message-sheet []
-  (views/letsubs [{:keys [formatted-data type] :as sign} [:signing/sign]]
+  (views/letsubs [{:keys [formatted-data type] :as sign} [:signing/sign]
+                  small-screen? [:dimensions/small-screen?]]
     (if (= type :pinless)
-      [signature-request sign]
+      [signature-request sign small-screen?]
       [react/view styles/message
        [react/view styles/message-header
         [react/text {:style {:typography :title-bold}} (i18n/label :t/signing-a-message)]

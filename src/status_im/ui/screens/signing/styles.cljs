@@ -59,13 +59,13 @@
    :padding-horizontal 16
    :padding-vertical   10})
 
-(def sheet-title
+(defn sheet-title [small-screen?]
   {:font-weight "500"
-   :font-size   19
+   :font-size   (if small-screen? 16 19)
    :margin-top  16})
 
-(def sheet-subtitle
-  {:font-size     19
+(defn sheet-subtitle [small-screen?]
+  {:font-size     (if small-screen? 16 19)
    :text-align    :center
    :margin-bottom 12
    :color         colors/gray})
