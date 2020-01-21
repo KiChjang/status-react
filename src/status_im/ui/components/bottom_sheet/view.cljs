@@ -23,9 +23,11 @@
                        {:toValue         new-opacity-value
                         :duration        duration
                         :useNativeDriver true})
-     (animation/timing bottom
+     (animation/spring bottom
                        {:toValue         new-bottom-value
                         :duration        duration
+                        :tension         40
+                        :friction        6
                         :useNativeDriver true})])
    (when (fn? callback) callback)))
 
