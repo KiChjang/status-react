@@ -213,16 +213,12 @@
               (chaos-mode/check-chaos-mode)
               (multiaccounts/switch-preview-privacy-mode-flag))))
 
-(defn get-new-auth-method [auth-method save-password?]
-  (if save-password?
-    (when-not (or (= keychain/auth-method-biometric auth-method)
-                  (= keychain/auth-method-password auth-method))
-      (if (= auth-method keychain/auth-method-biometric-prepare)
-        keychain/auth-method-biometric
-        keychain/auth-method-password))
-    (when (and auth-method
-               (not= auth-method keychain/auth-method-none))
-      keychain/auth-method-none)))
+(defn get-new-auth-method [auth-method _]
+  (when-not (or (= keychain/auth-method-biometric auth-method)
+                (= keychain/auth-method-password auth-method))
+    (if (= auth-method keychain/auth-method-biometric-prepare)
+      keychain/auth-method-biometric
+      keychain/auth-method-password)))
 
 (fx/defn login-only-events
   [{:keys [db] :as cofx} key-uid password save-password?]
