@@ -45,7 +45,7 @@
    [list-item/list-item
     {:theme    :action
      :title    :t/fetch-history
-     :icon     :main-icons/tiny-arrow-down
+     :icon     :main-icons/arrow-down
      :on-press #(hide-sheet-and-dispatch [:chat.ui/fetch-history-pressed chat-id])}]
    [list-item/list-item
     {:theme    :action-destructive
@@ -73,7 +73,7 @@
      [list-item/list-item
       {:theme    :action
        :title    :t/fetch-history
-       :icon     :main-icons/tiny-arrow-down
+       :icon     :main-icons/arrow-down
        :on-press #(hide-sheet-and-dispatch [:chat.ui/fetch-history-pressed chat-id])}]
      [list-item/list-item
       {:theme    :action-destructive
@@ -99,7 +99,7 @@
    [list-item/list-item
     {:theme    :action
      :title    :t/fetch-history
-     :icon     :main-icons/tiny-arrow-down
+     :icon     :main-icons/arrow-down
      :on-press #(hide-sheet-and-dispatch [:chat.ui/fetch-history-pressed chat-id])}]
    [list-item/list-item
     {:theme    :action-destructive
