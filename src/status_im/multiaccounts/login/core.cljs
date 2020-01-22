@@ -405,7 +405,6 @@
       (fx/merge cofx
                 {:db (assoc-in db [:multiaccounts/login :save-password?] false)}
                 (biometric/show-message bioauth-message bioauth-code)
-                (keychain/save-auth-method key-uid keychain/auth-method-none)
                 (open-login-callback nil)))))
 
 (fx/defn save-password
