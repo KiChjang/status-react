@@ -53,7 +53,7 @@
      :icon     :main-icons/delete
      :on-press #(hide-sheet-and-dispatch [:chat.ui/remove-chat-pressed chat-id])}]])
 
-(defn public-chat-actions [chat-id]
+(defn public-chat-actions [{:keys [chat-id]}]
   (let [link    (universal-links/generate-link :public-chat :external chat-id)
         message (i18n/label :t/share-public-chat-text {:link link})]
     [react/view
