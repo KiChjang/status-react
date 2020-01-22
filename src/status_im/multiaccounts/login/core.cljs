@@ -391,7 +391,8 @@
 (fx/defn biometric-auth-done
   {:events [:biometric-auth-done]}
   [{:keys [db] :as cofx} {:keys [bioauth-success bioauth-message bioauth-code]}]
-  (let [key-uid (get-in db [:multiaccounts/login :key-uid])]
+  (let [key-uid     (get-in db [:multiaccounts/login :key-uid])
+        auth-method (get db :auth-method)]
     (log/debug "[biometric] biometric-auth-done"
                "bioauth-success" bioauth-success
                "bioauth-message" bioauth-message
@@ -399,7 +400,11 @@
     (if bioauth-success
       (get-credentials cofx key-uid)
       (fx/merge cofx
-                {:db (assoc-in db [:multiaccounts/login :save-password?] false)}
+                {:db (assoc-in db
+                               [:multiaccounts/login :save-password?]
+                               (= auth-method keychain/auth-method-biometric))}
+                (when-not (= auth-method keychain/auth-method-biometric)
+                  (keychain/save-auth-method key-uid keychain/auth-method-none))
                 (biometric/show-message bioauth-message bioauth-code)
                 (open-login-callback nil)))))
 
