@@ -86,7 +86,16 @@
     (let [chain (ethereum/chain-keyword db)]
       {:resolve-public-key {:chain            chain
                             :contact-identity ens-name
-                            :cb               #(re-frame/dispatch [:chat.ui/show-profile %])}})))
+                            :cb               (fn [pub-key]
+                                                (cond
+                                                  (and pub-key (new-chat.db/own-public-key? db pub-key))
+                                                  (re-frame/dispatch [:navigate-to :my-profile])
+
+                                                  pub-key
+                                                  (re-frame/dispatch [:chat.ui/show-profile pub-key])
+
+                                                  :else
+                                                  (log/info "universal-link: no pub-key for ens-name " ens-name)))}})))
 
 (fx/defn handle-eip681 [cofx url]
   (fx/merge cofx
