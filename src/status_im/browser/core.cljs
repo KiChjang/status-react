@@ -294,7 +294,6 @@
   {:events [:browser.dapp/transaction-on-result]}
   [{{:keys [webview-bridge]} :db} message-id id result]
   ;;TODO check and test id
-  (log/info "#dapp-complete-transaction" result)
   {:browser/send-to-bridge
    {:message {:type      constants/web3-send-async-callback
               :messageId message-id
@@ -321,16 +320,10 @@
 
 (fx/defn web3-send-async
   [cofx {:keys [method params id] :as payload} message-id]
-  (let [_ (log/info "#web3-send-async payload:" payload)
-        _ (log/info "#web3-send-async method" method)
-        message?      (constants/web3-sign-message? method)
-        _ (log/info "#web3-send-async message?" message?)
+  (let [message?      (constants/web3-sign-message? method)
         dapps-address (get-in cofx [:db :multiaccount :dapps-address])]
     (if (or message? (= constants/web3-send-transaction method))
-      (let [[address data] (when message? (normalize-sign-message-params params))
-            _ (log/info "#web3-send-async params type" (count params) (string? (first params)) (string? (second params)))
-            _ (log/info "#web3-send-async address" address)
-            _ (log/info "#web3-send-async data" data)]
+      (let [[address data] (when message? (normalize-sign-message-params params))]
         (when (or (not message?) (and address data))
           (signing/sign cofx (merge
                               (if message?
