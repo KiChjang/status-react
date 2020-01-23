@@ -1408,7 +1408,6 @@
                   (show-wrong-keycard-alert card-connected?))))))
 
 (fx/defn sign-typed-data
-
   {:events [:hardwallet/sign-typed-data]}
   [{:keys [db] :as cofx}]
   (let [card-connected? (get-in db [:hardwallet :card-connected?])
