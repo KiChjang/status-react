@@ -93,7 +93,6 @@
  'status-im.test.fleet.core
  'status-im.test.hardwallet.core
  'status-im.test.i18n
- 'status-im.test.mailserver.core
  'status-im.test.mailserver.topics
  'status-im.test.models.bootnode
  'status-im.test.models.contact
