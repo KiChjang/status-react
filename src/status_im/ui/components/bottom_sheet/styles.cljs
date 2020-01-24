@@ -4,7 +4,8 @@
 
 (def border-radius 16)
 (def bottom-padding (if platform/iphone-x? 34 8))
-(def bottom-view-height 1000)
+(def top-padding 8)
+(def bottom-view-height 1000)           ; should be window-height
 
 (def container
   {:position        :absolute
@@ -33,9 +34,10 @@
    :height                  (+ content-height bottom-view-height)
    :bottom                  (- bottom-view-height)
    :align-self              :stretch
-   :transform               [{:translateY bottom-value}]
-   :justify-content         :flex-start
-   :padding-bottom          bottom-padding})
+   :transform               [{:translateY bottom-value}]})
+
+(def sheet-wrapper {:flex            1
+                    :justify-content :flex-end})
 
 (def content-header
   {:height          border-radius
