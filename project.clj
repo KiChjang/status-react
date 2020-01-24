@@ -135,7 +135,11 @@
                                       :warning-handlers [status-im.utils.build/warning-handler]}
                                      :android
                                      {:source-paths     ["components/src" "react-native/src/cljsjs" "react-native/src/mobile" "src" "env/prod" "prod"]
-                                      :compiler         {:main               "env.android.main"
+                                      :compiler         {:output-to     "index.android.js"
+                                                            :main          "env.android.main"
+                                                            :output-dir    "target/android-prod"
+                                                            :optimizations :none}
+                                      #_{:main               "env.android.main"
                                                          :output-dir         "target/android-prod"
                                                          :static-fns         true
                                                          :fn-invoke-direct   true
