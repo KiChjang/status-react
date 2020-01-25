@@ -246,10 +246,9 @@
 ;; KeyboardAvoidingView
 
 (defn keyboard-avoiding-view [props & children]
-  (let [view-element (if platform/ios?
-                       [keyboard-avoiding-view-class (merge {:behavior :padding} props)]
-                       [view props])]
-    (vec (concat view-element children))))
+  (into [keyboard-avoiding-view-class
+         (merge (when platform/ios? {:behavior :padding}) props)]
+        children))
 
 (defn scroll-view [props & children]
   (vec (conj children props scroll-view-class)))
@@ -299,24 +298,4 @@
    comp])
 
 (def safe-area-provider (adapt-class (object/get js-dependencies/safe-area-context "SafeAreaProvider")))
-
-(defn create-main-screen-view [current-view]
-  (fn [props & children]
-    (apply
-     vector
-     (adapt-class (object/get js-dependencies/safe-area-context "SafeAreaView"))
-     (cond-> props
-       (= current-view :qr-scanner)
-       (assoc :background-color :black))
-     children)))
-
-(defn main-screen-modal-view [current-view & components]
-  [(create-main-screen-view current-view)
-   styles/flex
-   [(if (= current-view :chat-modal)
-      view
-      keyboard-avoiding-view)
-    (merge {:flex 1 :flex-direction :column}
-           (when platform/android?
-             {:background-color :white}))
-    (apply vector view styles/flex components)]])
+(def safe-area-view (adapt-class (object/get js-dependencies/safe-area-context "SafeAreaView")))

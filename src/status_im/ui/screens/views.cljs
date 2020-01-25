@@ -1,6 +1,8 @@
 (ns status-im.ui.screens.views
   (:require-macros [status-im.utils.views :refer [defview letsubs] :as views])
   (:require [status-im.utils.universal-links.core :as utils.universal-links]
+            [re-frame.core :as re-frame]
+            [status-im.utils.platform :as platform]
             [status-im.ui.screens.about-app.views :as about-app]
             [status-im.ui.components.react :as react]
             [status-im.ui.components.bottom-sheet.core :as bottom-sheet]
@@ -22,6 +24,9 @@
             status-im.ui.screens.wallet.collectibles.cryptokitties.views
             status-im.ui.screens.wallet.collectibles.superrare.views
             status-im.ui.screens.wallet.collectibles.kudos.views))
+
+
+(def debug? ^boolean goog.DEBUG)
 
 (defonce rand-label (when js/goog.DEBUG (rand/id)))
 
@@ -79,12 +84,9 @@
       [bottom-sheet-comp opts height-atom])))
 
 (defn reset-component-on-mount [view-id component two-pane?]
-  (when (and @initial-view-id
-             (or
-              js/goog.DEBUG
-              (not @component)))
+  (when (and @initial-view-id (or debug? (not @component)))
     (reset! component (routing/get-main-component
-                       (if js/goog.DEBUG
+                       (if debug?
                          @initial-view-id
                          @view-id)
                        two-pane?))))
@@ -92,23 +94,24 @@
 (defn reset-component-on-update [view-id component two-pane?]
   (when (and @initial-view-id (not @component))
     (reset! component (routing/get-main-component
-                       (if js/goog.DEBUG
+                       (if debug?
                          @initial-view-id
                          @view-id)
                        two-pane?))))
 
-(defonce state (atom nil))
+(when debug?
+ (defonce state (atom nil))
 
-(defn persist-state [state-obj]
-  (js/Promise.
-   (fn [resolve reject]
-     (reset! state state-obj)
-     (resolve true))))
+ (defn persist-state! [state-obj]
+   (js/Promise.
+    (fn [resolve reject]
+      (reset! state state-obj)
+      (resolve true))))
 
-(defn load-state []
-  (js/Promise.
-   (fn [resolve reject]
-     (resolve @state))))
+ (defn load-state! []
+   (js/Promise.
+    (fn [resolve reject]
+      (resolve @state)))))
 
 (defn main []
   (let [view-id                 (re-frame/subscribe [:view-id])
@@ -126,8 +129,10 @@
 
     (when-not @initial-view-id
       (reset! initial-view-id @view-id))
+
     (reset-component-on-mount view-id main-component false)
     (reset-component-on-mount view-id main-component-two-pane true)
+
     (reagent/create-class
      {:component-did-mount
       (fn []
@@ -145,25 +150,28 @@
         (reset-component-on-update view-id main-component-two-pane true)
         (when-not platform/desktop?
           (react/dismiss-keyboard!)))
+
       :component-did-update
       (fn []
         (log/debug :main-component-did-update @view-id))
+
       :reagent-render
       (fn []
         (when (and @view-id main-component)
           [react/safe-area-provider
            [react/view {:flex 1}
-            [:> (if @two-pane? @main-component-two-pane @main-component)
-             {:ref                    (fn [r]
-                                        (navigation/set-navigator-ref r)
-                                        (when (and
-                                               platform/android?
-                                               (not js/goog.DEBUG)
-                                               (not (contains? #{:intro :login :progress} @view-id)))
-                                          (navigation/navigate-to @view-id nil)))
-               ;; see https://reactnavigation.org/docs/en/state-persistence.html#development-mode
-              :persistNavigationState (when js/goog.DEBUG persist-state)
-              :loadNavigationState    (when js/goog.DEBUG load-state)}]
+            [(if @two-pane? @main-component-two-pane @main-component)
+             (merge {:ref (fn [r]
+                            (navigation/set-navigator-ref r)
+                            (when (and
+                                   platform/android?
+                                   (not debug?)
+                                   (not (contains? #{:intro :login :progress} @view-id)))
+                              (navigation/navigate-to @view-id nil)))}
+                    (when debug?
+                      {:enableURLHandling      true
+                       :persistNavigationState persist-state!
+                       :loadNavigationState    load-state!}))]
             [wallet/prepare-transaction]
             [wallet/request-transaction]
             [wallet/select-account]

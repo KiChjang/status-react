@@ -6,6 +6,7 @@
     "start": "react-native start"
   },
   "dependencies": {
+    "@react-native-community/masked-view": "^0.1.6",
     "@react-native-community/netinfo": "^4.4.0",
     "bignumber.js": "git+https://github.com/status-im/bignumber.js.git#v4.0.2-status",
     "buffer": "^5.4.2",
@@ -45,7 +46,7 @@
     "react-native-webview": "^6.11.1",
     "react-native-webview-bridge": "git+https://github.com/status-im/react-native-webview-bridge.git#fix/community-webview",
     "react-navigation": "^4.0.10",
-    "react-navigation-stack": "^2.0.15",
+    "react-navigation-stack": "^2.0.16",
     "react-navigation-tabs": "^2.7.0",
     "web3-utils": "^1.2.1"
   },

@@ -59,47 +59,19 @@
   "Wraps screen with main view and adds navigation-events component"
   [view-id component]
   (fn [args]
-    (let [main-view       (react/create-main-screen-view view-id)
-          ;; params passed to :navigate-to
-          params          (get-in args [:navigation :state :params])
+    (let [params          (get-in args [:navigation :state :params])
           screen-focused? (reagent.core/atom true)]
-      (if platform/ios?
-        [main-view (assoc common-styles/flex
-                          :margin-bottom
-                          (cond
-                            ;; there is no need to show bottom nav bar on
-                            ;; `intro-login-stack` screens
-                            (contains?
-                             intro-login-stack/all-screens
-                             view-id)
-                            0
+      [react/view {:flex 1}
+       [navigation-events view-id false screen-focused?]
+       [component params screen-focused?]])))
 
-                            ;; :wallet-onboarding-setup is the only screen
-                            ;; except main tabs which requires maximised
-                            ;; bottom nav bar, that's why it requires an extra
-                            ;; bottom margin, otherwise bottom nav bar will
-                            ;; partially cover the screen
-                            (contains?
-                             #{:wallet-onboarding-setup}
-                             view-id)
-                            tabs.styles/tabs-height
-
-                            :else
-                            tabs.styles/minimized-tabs-height))
-         [component params screen-focused?]
-         [navigation-events view-id false screen-focused?]]
-
-        [main-view common-styles/flex
-         [component params screen-focused?]
-         [navigation-events view-id false screen-focused?]]))))
-
-(defn wrap-modal [modal-view component]
-  "Wraps modal screen with necessary styling and adds :on-request-close handler
-  on Android"
+(defn wrap-modal
+  "Wraps modal screen with necessary styling and and adds navigation-events component"
+  [modal-view component]
   (fn [args]
     (let [params  (get-in args [:navigation :state :params])
           active? (reagent.core/atom true)]
-      [react/main-screen-modal-view modal-view
+      [react/view {:flex 1}
        [component params active?]
        [navigation-events modal-view true active?]])))
 
@@ -123,19 +95,20 @@
                      #_:transitionConfig
                      #_(fn []
                          #js {:transitionSpec #js{:duration 10}})
-                     :onTransitionStart (fn [n]
-                                          (let [idx    (.. n
-                                                           -navigation
-                                                           -state
-                                                           -index)
-                                                routes (.. n
-                                                           -navigation
-                                                           -state
-                                                           -routes)]
-                                            (when (and (array? routes) (int? idx))
-                                              (let [route      (aget routes idx)
-                                                    route-name (keyword (.-routeName route))]
-                                                (tabbar/minimize-bar route-name)))))}
+                     ;; :onTransitionStart (fn [n]
+                     ;;                      (let [idx    (.. n
+                     ;;                                       -navigation
+                     ;;                                       -state
+                     ;;                                       -index)
+                     ;;                            routes (.. n
+                     ;;                                       -navigation
+                     ;;                                       -state
+                     ;;                                       -routes)]
+                     ;;                        (when (and (array? routes) (int? idx))
+                     ;;                          (let [route      (aget routes idx)
+                     ;;                                route-name (keyword (.-routeName route))]
+                     ;;                            (tabbar/minimize-bar route-name)))))
+                     }
                     (prepare-config config)))]
     (set! (-> res .-router .-getStateForAction) (new-get-state-for-action (.-getStateForAction (.-router res))))
     res))
@@ -145,19 +118,20 @@
    routes
    (merge {:headerMode        "none"
            :cardStyle         {:backgroundColor :white}
-           :onTransitionStart (fn [n]
-                                (let [idx    (.. n
-                                                 -navigation
-                                                 -state
-                                                 -index)
-                                      routes (.. n
-                                                 -navigation
-                                                 -state
-                                                 -routes)]
-                                  (when (and (array? routes) (int? idx))
-                                    (let [route      (aget routes idx)
-                                          route-name (keyword (.-routeName route))]
-                                      (tabbar/minimize-bar route-name)))))}
+           ;; :onTransitionStart (fn [n]
+           ;;                      (let [idx    (.. n
+           ;;                                       -navigation
+           ;;                                       -state
+           ;;                                       -index)
+           ;;                            routes (.. n
+           ;;                                       -navigation
+           ;;                                       -state
+           ;;                                       -routes)]
+           ;;                        (when (and (array? routes) (int? idx))
+           ;;                          (let [route      (aget routes idx)
+           ;;                                route-name (keyword (.-routeName route))]
+           ;;                            (tabbar/minimize-bar route-name)))))
+           }
           (prepare-config config))))
 
 (defn switch-navigator [routes config]
@@ -237,9 +211,8 @@
                            :tabBarComponent  (reagent.core/reactify-component
                                               wrap-tabbar)})}}
                (stack-screens stack-navigator modals/modal-screens))
-              {:mode              :modal
-               :initialRouteName  :tabs
-               :onTransitionStart (fn [])})}]])
+              {:mode             :modal
+               :initialRouteName :tabs})}]])
     {:initialRouteName (if (= view-id :intro)
                          :intro-stack
                          :login-stack)})))

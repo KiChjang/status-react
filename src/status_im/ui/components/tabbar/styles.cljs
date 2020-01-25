@@ -7,7 +7,7 @@
 (def tabs-height
   (cond
     platform/android? 52
-    platform/ios? 52
+    platform/ios?     52
     platform/desktop? 36))
 
 (def minimized-tabs-height 36)
@@ -16,8 +16,6 @@
 
 (def minimized-tab-ratio
   (/ minimized-tabs-height tabs-height))
-
-(def tab-height (dec tabs-height))
 
 (def tabs-container
   {:flex-direction   :row
@@ -103,11 +101,10 @@
                 :shadow-color     "rgba(0, 9, 26, 0.12)"}})
 
 (def tabs
-  {:height         tabs-height
-   :align-self     :stretch
-   :padding-left   8
-   :padding-right  8
-   :flex-direction :row})
+  {:height             tabs-height
+   :align-self         :stretch
+   :padding-horizontal 8
+   :flex-direction     :row})
 
 (defn animated-container [visible? keyboard-shown?]
   {:bottom           0
@@ -115,9 +112,6 @@
    :right            0
    :background-color :white
    :elevation        8
-   :position         (when (or platform/ios?
-                               keyboard-shown?)
-                       :absolute)
    :transform        [{:translateY
                        (animation/interpolate
                         visible?
@@ -133,23 +127,6 @@
    :right            0
    :left             0})
 
-(def title-cover-wrapper-ios
-  {:left             0
-   :right            0
-   :bottom           0
-   :padding-bottom   (if platform/iphone-x? 34 0)
-   :position         :absolute
+(def title-cover-wrapper
+  {:padding-bottom   (if platform/iphone-x? 34 0)
    :background-color :white})
-
-(def title-cover-wrapper-android
-  {:left     0
-   :right    0
-   :bottom   0
-   :position :absolute})
-
-(defn animation-wrapper [keyboard-shown? main-tab?]
-  {:height     (cond
-                 keyboard-shown? 0
-                 main-tab?       tabs-height
-                 :else           minimized-tabs-height)
-   :align-self :stretch})

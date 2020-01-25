@@ -29,10 +29,7 @@
 (defonce createTwoPaneNavigator (oget TwoPaneNavigator ["createTwoPaneNavigator"]))
 
 ;; Views
-(defonce Transitioner (oget ReactNavigationStack ["Transitioner"]))
-
 (defonce StackView (oget ReactNavigationStack ["StackView"]))
-(defonce CardStackView (oget ReactNavigationStack ["StackViewCard"]))
 (defonce HeaderView (oget ReactNavigationStack ["Header"]))
 (defonce SwitchView (oget ReactNavigation ["SwitchView"]))
 

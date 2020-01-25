@@ -6,7 +6,6 @@
    [status-im.ui.components.react :as react]
    [status-im.utils.platform :as platform]
    [status-im.ui.components.icons.vector-icons :as vector-icons]
-   [status-im.ui.components.common.common :as components.common]
    [status-im.ui.components.badge :as badge]
    [status-im.i18n :as i18n]
    [re-frame.core :as re-frame]))
@@ -102,25 +101,6 @@
     (animate visible? 150 1)
     (animate visible? 150 tabs.styles/minimized-tab-ratio)))
 
-(defn tabs-animation-wrapper-ios
-  [content]
-  [react/view {:style tabs.styles/title-cover-wrapper-ios}
-   [react/view
-    content
-    (when platform/iphone-x?
-      [react/view
-       {:style tabs.styles/ios-titles-cover}])]])
-
-(defn tabs-animation-wrapper-android
-  [keyboard-shown? view-id content]
-  [react/view
-   {:style (tabs.styles/animation-wrapper
-            keyboard-shown?
-            (main-tab? view-id))}
-   [react/view
-    {:style tabs.styles/title-cover-wrapper-android}
-    content]])
-
 (defn tabs-animation-wrapper [keyboard-shown? view-id tab]
   (reagent.core/create-class
    {:component-will-update
@@ -134,27 +114,21 @@
       (when-not (contains? #{:enter-pin-login
                              :enter-pin-sign
                              :enter-pin-settings} view-id)
-        (case platform/os
-          "ios" [tabs-animation-wrapper-ios
-                 [react/animated-view
-                  {:style (tabs.styles/animated-container visible? keyboard-shown?)}
-                  [tabs tab]]]
-          "android" [tabs-animation-wrapper-android
-                     keyboard-shown?
-                     view-id
-                     [react/animated-view
-                      {:style (tabs.styles/animated-container visible? keyboard-shown?)}
-                      [tabs tab]]]
-          "desktop"
-          [tabs-animation-wrapper-android
-           keyboard-shown?
-           view-id
-           [react/animated-view
-            {:style (tabs.styles/animated-container visible? keyboard-shown?)}
-            [tabs tab]]])))}))
 
-(def disappearance-duration 150)
-(def appearance-duration 100)
+        [react/view {:style tabs.styles/title-cover-wrapper}
+         [react/view
+          [react/animated-view {:style (tabs.styles/animated-container visible? keyboard-shown?)}
+           [tabs tab]]
+          (when platform/iphone-x?
+            [react/view
+             {:style tabs.styles/ios-titles-cover}])
+          ]
+         ]
+        ))
+    }))
+
+(def disappearance-duration 0)
+(def appearance-duration 0)
 
 (defn tabbar [_ view-id]
   (let [keyboard-shown? (reagent/atom false)
@@ -162,7 +136,7 @@
     (reagent/create-class
      {:component-did-mount
       (fn []
-        (when platform/android?
+        (when false  ;; platform/android?
           (reset!
            listeners
            [(.addListener react/keyboard  "keyboardDidShow"

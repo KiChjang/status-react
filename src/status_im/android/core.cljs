@@ -1,6 +1,7 @@
 (ns status-im.android.core
   (:require [reagent.core :as reagent]
             [re-frame.core :refer [subscribe dispatch dispatch-sync]]
+            [oops.core :refer [ocall]]
             status-im.utils.db
             status-im.ui.screens.db
             status-im.ui.screens.events
@@ -41,8 +42,7 @@
                         (when-not (zero? @keyboard-height)
                           (dispatch [:set :keyboard-height 0]))))
         (.hide react/splash-screen)
-        ;; TODO Temporarily comment away due to current bug https://github.com/kmagiera/react-native-screens/issues/54
-                                        ;(.useScreens rn-dependencies/react-native-screens)
+        (ocall rn-dependencies/react-native-screens "enableScreens")
         (.addEventListener react/app-state "change" app-state-change-handler)
         (.addEventListener rn-dependencies/react-native-languages "change" on-languages-change)
         (.addEventListener rn-dependencies/react-native-shake
@@ -57,6 +57,6 @@
       :reagent-render views/main})))
 
 (defn init []
-  (status/set-soft-input-mode status/adjust-resize)
+  (status/set-soft-input-mode 32)
   (core/init app-root)
   (snoopy/subscribe!))
